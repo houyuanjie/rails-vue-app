@@ -14,6 +14,6 @@ Post.destroy_all
 10.times do
   Post.create(
     title: Faker::Lorem.sentence,
-    content: Faker::Lorem.paragraphs
+    content: Faker::Lorem.paragraph
   )
 end

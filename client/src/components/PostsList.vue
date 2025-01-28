@@ -5,7 +5,7 @@
       :key="post.id"
       :title="post.title"
       :subtitle="post.content"
-      @click="$emit('editPost', post)"
+      @click="$emit('editPost', Object.assign({}, post))"
     >
       <template #append>
         <v-list-item-action end>

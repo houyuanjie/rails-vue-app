@@ -40,10 +40,7 @@ export default {
   data() {
     return {
       posts: [],
-      newPost: {
-        title: "",
-        content: "",
-      },
+      newPost: this.defaultNewPost(),
       editPost: null,
     }
   },
@@ -51,11 +48,18 @@ export default {
     async fetchPosts() {
       this.posts = await postsApi.all()
     },
+    defaultNewPost() {
+      return {
+        title: "",
+        content: "",
+      }
+    },
     setEditPost(post) {
       this.editPost = post
     },
     exitEdit() {
       this.editPost = null
+      this.newPost = this.defaultNewPost()
     },
     async saveEdit() {
       if (!this.editPost) return
@@ -65,6 +69,7 @@ export default {
     async doSaveNewPost() {
       await postsApi.create(this.newPost)
       await this.fetchPosts()
+      this.newPost = this.defaultNewPost()
     },
     async doDeletePost(post) {
       await postsApi.delete(post.id)

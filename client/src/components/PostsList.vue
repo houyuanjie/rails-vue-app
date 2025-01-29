@@ -5,7 +5,7 @@
       :key="post.id"
       :title="post.title"
       :subtitle="post.content"
-      @click="$emit('editPost', Object.assign({}, post))"
+      @click="$emit('editPost', post)"
     >
       <template #append>
         <v-list-item-action end>
@@ -23,5 +23,3 @@ export default {
   emits: ["editPost", "deletePost"],
 }
 </script>
-
-<style scoped></style>

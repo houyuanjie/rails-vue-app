@@ -1,29 +1,37 @@
 <template>
-  <h1>Posts</h1>
+  <v-container>
+    <v-row>
+      <h1>Posts</h1>
+    </v-row>
 
-  <!-- 编辑模式 -->
-  <div v-if="editPost">
-    <h3>Edit</h3>
-    <post-form v-model:post="editPost"></post-form>
-    <v-btn-group>
-      <v-btn @click="exitEdit">BACK TO NEW</v-btn>
-      <v-btn @click="saveEdit">SAVE</v-btn>
-    </v-btn-group>
-  </div>
-  <!-- 创建模式 -->
-  <div v-else>
-    <h3>New</h3>
-    <post-form v-model:post="newPost"></post-form>
-    <v-btn-group>
-      <v-btn @click="doSaveNewPost">CREATE</v-btn>
-    </v-btn-group>
-  </div>
+    <!-- 编辑模式 -->
+    <v-container v-if="editPost">
+      <v-row>
+        <h3>Edit</h3>
+      </v-row>
+      <post-form v-model:post="editPost"></post-form>
+      <v-btn-group>
+        <v-btn @click="exitEdit">BACK TO NEW</v-btn>
+        <v-btn @click="saveEdit">SAVE</v-btn>
+      </v-btn-group>
+    </v-container>
+    <!-- 创建模式 -->
+    <v-container v-else>
+      <v-row>
+        <h3>New</h3>
+      </v-row>
+      <post-form v-model:post="newPost"></post-form>
+      <v-btn-group>
+        <v-btn @click="doSaveNewPost">CREATE</v-btn>
+      </v-btn-group>
+    </v-container>
 
-  <posts-list
-    :posts="posts"
-    @delete-post="doDeletePost"
-    @edit-post="setEditPost"
-  ></posts-list>
+    <posts-list
+      :posts="posts"
+      @delete-post="doDeletePost"
+      @edit-post="setEditPost"
+    ></posts-list>
+  </v-container>
 </template>
 
 <script>
@@ -33,10 +41,7 @@ import postsApi from "./api/posts.js"
 
 export default {
   name: "App",
-  components: {
-    PostsList,
-    PostForm,
-  },
+  components: { PostsList, PostForm },
   data() {
     return {
       posts: [],
@@ -49,31 +54,33 @@ export default {
       this.posts = await postsApi.all()
     },
     defaultNewPost() {
-      return {
-        title: "",
-        content: "",
-      }
+      return { title: "", content: "" }
     },
     setEditPost(post) {
-      this.editPost = post
+      // We copy it so that we don't modify the original one in the list
+      this.editPost = { ...post }
     },
     exitEdit() {
       this.editPost = null
-      this.newPost = this.defaultNewPost()
     },
     async saveEdit() {
       if (!this.editPost) return
-      await postsApi.update(this.editPost.id, this.editPost)
-      await this.fetchPosts()
+      const updated = await postsApi.update(this.editPost.id, this.editPost)
+
+      // Replace the post in the list
+      const index = this.posts.findIndex((p) => p.id === updated.id)
+      if (index > -1) this.posts.splice(index, 1, updated)
+
+      this.exitEdit()
     },
     async doSaveNewPost() {
-      await postsApi.create(this.newPost)
-      await this.fetchPosts()
+      const created = await postsApi.create(this.newPost)
+      this.posts.unshift(created)
       this.newPost = this.defaultNewPost()
     },
     async doDeletePost(post) {
       await postsApi.delete(post.id)
-      await this.fetchPosts()
+      this.posts = this.posts.filter((p) => p.id !== post.id)
     },
   },
   async mounted() {
@@ -81,5 +88,3 @@ export default {
   },
 }
 </script>
-
-<style scoped></style>

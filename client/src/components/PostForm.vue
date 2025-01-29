@@ -12,5 +12,3 @@ export default {
   emits: ["update:post"],
 }
 </script>
-
-<style scoped></style>
